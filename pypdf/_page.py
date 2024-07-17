@@ -1575,7 +1575,7 @@ class PageObject(DictionaryObject):
         space_width: float = 200.0,
         content_key: Optional[str] = PG.CONTENTS,
         visitor_operand_before: Optional[Callable[[Any, Any, Any, Any], None]] = None,
-        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any], None]] = None,
+        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any, Any, Any], None]] = None,
         visitor_text: Optional[Callable[[Any, Any, Any, Any, Any], None]] = None,
     ) -> str:
         """
@@ -1649,7 +1649,7 @@ class PageObject(DictionaryObject):
 
         def current_spacewidth() -> float:
             return _space_width / 1000.0
-
+        
         def process_operation(operator: bytes, operands: List[Any]) -> None:
             nonlocal cm_matrix, cm_stack, tm_matrix, cm_prev, tm_prev, memo_cm, memo_tm
             nonlocal char_scale, space_scale, _space_width, TL, font_size, cmap
@@ -1895,7 +1895,7 @@ class PageObject(DictionaryObject):
             else:
                 process_operation(operator, operands)
             if visitor_operand_after is not None:
-                visitor_operand_after(operator, operands, cm_matrix, tm_matrix)
+                visitor_operand_after(operator, operands, cm_matrix, tm_matrix, cmap)
         output += text  # just in case of
         if text != "" and visitor_text is not None:
             visitor_text(text, memo_cm, memo_tm, cmap[3], font_size)
@@ -1999,7 +1999,7 @@ class PageObject(DictionaryObject):
         orientations: Union[int, Tuple[int, ...]] = (0, 90, 180, 270),
         space_width: float = 200.0,
         visitor_operand_before: Optional[Callable[[Any, Any, Any, Any], None]] = None,
-        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any], None]] = None,
+        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any, Any], None]] = None,
         visitor_text: Optional[Callable[[Any, Any, Any, Any, Any], None]] = None,
         extraction_mode: Literal["plain", "layout"] = "plain",
         **kwargs: Any,
@@ -2033,8 +2033,8 @@ class PageObject(DictionaryObject):
                 It has four arguments: operator, operand-arguments,
                 current transformation matrix and text matrix.
             visitor_operand_after: function to be called after processing an operation.
-                It has four arguments: operator, operand-arguments,
-                current transformation matrix and text matrix.
+                It has five arguments: operator, operand-arguments,
+                current transformation matrix, text matrix and the current cmap.
             visitor_text: function to be called when extracting some text at some position.
                 It has five arguments: text, current transformation matrix,
                 text matrix, font-dictionary and font-size.
@@ -2116,7 +2116,7 @@ class PageObject(DictionaryObject):
         orientations: Tuple[int, ...] = (0, 90, 270, 360),
         space_width: float = 200.0,
         visitor_operand_before: Optional[Callable[[Any, Any, Any, Any], None]] = None,
-        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any], None]] = None,
+        visitor_operand_after: Optional[Callable[[Any, Any, Any, Any, Any], None]] = None,
         visitor_text: Optional[Callable[[Any, Any, Any, Any, Any], None]] = None,
     ) -> str:
         """
